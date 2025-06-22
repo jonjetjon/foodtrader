@@ -31,7 +31,7 @@ import { HashUtil } from "@spt/utils/HashUtil";
 
 let realismDetected:boolean;
 
-class FoodTrader implements IPreSptLoadMod, IPostDBLoadMod
+class ChefBoyardyev implements IPreSptLoadMod, IPostDBLoadMod
 {
     private mod: string
     private logger: ILogger
@@ -42,7 +42,7 @@ class FoodTrader implements IPreSptLoadMod, IPostDBLoadMod
     private static configPath = path.resolve(__dirname, "../config/config.json");
 
     constructor() {
-        this.mod = "FoodTrader"; // Set name of mod so we can log it to console later
+        this.mod = "ChefBoyardyev"; // Set name of mod so we can log it to console later
     }
     /**
      * Some work needs to be done prior to SPT code being loaded, registering the profile image + setting trader update time inside the trader config json
@@ -64,12 +64,12 @@ class FoodTrader implements IPreSptLoadMod, IPostDBLoadMod
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
 
         //Load config file before accessing it
-        FoodTrader.config = JSON.parse(fs.readFileSync(FoodTrader.configPath, "utf-8"));
+        ChefBoyardyev.config = JSON.parse(fs.readFileSync(ChefBoyardyev.configPath, "utf-8"));
 
         // Set config values to local variables for validation & use
-        let minRefresh = FoodTrader.config.traderRefreshMin;
-        let maxRefresh = FoodTrader.config.traderRefreshMax;
-        const addToFlea = FoodTrader.config.addTraderToFlea;
+        let minRefresh = ChefBoyardyev.config.traderRefreshMin;
+        let maxRefresh = ChefBoyardyev.config.traderRefreshMax;
+        const addToFlea = ChefBoyardyev.config.addTraderToFlea;
         if (minRefresh >= maxRefresh)
         {
             minRefresh = 1800;
@@ -86,7 +86,7 @@ class FoodTrader implements IPreSptLoadMod, IPostDBLoadMod
         // Create helper class and use it to register our traders image/icon + set its stock refresh time
         this.traderHelper = new TraderHelper();
         this.fluentAssortCreator = new FluentAssortCreator(hashUtil, this.logger);
-        this.traderHelper.registerProfileImage(baseJson, this.mod, preSptModLoader, imageRouter, "FoodTrader.jpg");
+        this.traderHelper.registerProfileImage(baseJson, this.mod, preSptModLoader, imageRouter, "ChefBoyardyev.jpg");
         this.traderHelper.setTraderUpdateTime(traderConfig, baseJson, minRefresh, maxRefresh);
 
         // Add trader to trader enum
@@ -102,13 +102,13 @@ class FoodTrader implements IPreSptLoadMod, IPostDBLoadMod
             ragfairConfig.traders[baseJson._id] = false;
         }
         dynamicRouterModService.registerDynamicRouter(
-            "FoodTraderRefreshStock",
+            "ChefBoyardyevRefreshStock",
             [
                 {
-                    url: "/client/items/prices/FoodTrader",
+                    url: "/client/items/prices/ChefBoyardyev",
                     action: async (url, info, sessionId, output) => 
                     {
-                        const trader = databaseService.getTables().traders["FoodTrader"];
+                        const trader = databaseService.getTables().traders["ChefBoyardyev"];
                         const assortItems = trader.assort.items;
                         return output;
                     }
@@ -125,7 +125,7 @@ class FoodTrader implements IPreSptLoadMod, IPostDBLoadMod
     public postDBLoad(container: DependencyContainer): void
     {
 
-        FoodTrader.config = JSON.parse(fs.readFileSync(FoodTrader.configPath, "utf-8"));
+        ChefBoyardyev.config = JSON.parse(fs.readFileSync(ChefBoyardyev.configPath, "utf-8"));
 
         // Resolve SPT classes we'll use
         const preSptModLoader: PreSptModLoader = container.resolve<PreSptModLoader>("PreSptModLoader");
@@ -154,18 +154,18 @@ class FoodTrader implements IPreSptLoadMod, IPostDBLoadMod
         for (const itemID of listOfKeys)
         {
             //check the price table for the price of the item and then multiply that by the price reduction and the pricemultiplier in the config    
-            let price = (priceTable[itemID] * priceReduction)  * FoodTrader.config.itemPriceMultiplier;
+            let price = (priceTable[itemID] * priceReduction)  * ChefBoyardyev.config.itemPriceMultiplier;
             //if there is no price in the price table take the handbook price of the item, multiply it by our pricereduction variable, then multiply that by the pricemultiplier in the config
             if (!price)
             {
-                price = ((handbookTable.Items.find(x => x.Id === itemID)?.Price ?? 1) * priceReduction)  * FoodTrader.config.itemPriceMultiplier;
+                price = ((handbookTable.Items.find(x => x.Id === itemID)?.Price ?? 1) * priceReduction)  * ChefBoyardyev.config.itemPriceMultiplier;
             }
             this.fluentAssortCreator.createSingleAssortItem(itemID)
                 .addUnlimitedStackCount()
                 .addMoneyCost(Money.ROUBLES, Math.round(price))
                 .addLoyaltyLevel(1)
                 .export(tables.traders[baseJson._id])
-            if (FoodTrader.config.debugLogging){
+            if (ChefBoyardyev.config.debugLogging){
                 logger.log("ItemID: " + itemID + " for price: " + Math.round(price), "cyan");
             }
         }
@@ -173,12 +173,12 @@ class FoodTrader implements IPreSptLoadMod, IPostDBLoadMod
 
         // Add trader to locale file, ensures trader text shows properly on screen
         // WARNING: adds the same text to ALL locales (e.g. chinese/french/english)
-        this.traderHelper.addTraderToLocales(baseJson, tables, baseJson.name, "Food Trader", baseJson.nickname, baseJson.location, "Meow Meow Meow(Tarkov) Meow Meow Meow(keys for sale)");
+        this.traderHelper.addTraderToLocales(baseJson, tables, baseJson.name, "Chef Boyardyev", baseJson.nickname, baseJson.location, "Itsa justa likea my momma used toa makea");
 
         this.logger.debug(`[${this.mod}] loaded... `);
 
         const timeTaken = performance.now() - start;
-        if (FoodTrader.config.debugLogging) {logger.log(`[${this.mod}] Assort generation took ${timeTaken.toFixed(3)}ms.`, "green");}
+        if (ChefBoyardyev.config.debugLogging) {logger.log(`[${this.mod}] Assort generation took ${timeTaken.toFixed(3)}ms.`, "green");}
     }
 
     private getKeyIds(): string[]
@@ -236,4 +236,4 @@ interface Config
     debugLogging: boolean,
 }
 
-module.exports = { mod: new FoodTrader() }
+module.exports = { mod: new ChefBoyardyev() }

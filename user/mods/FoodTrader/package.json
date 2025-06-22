@@ -1,6 +1,6 @@
 {
-    "name": "CatBurglar",
-    "version": "1.2.0",
+    "name": "FoodTrader",
+    "version": "1.0.0",
     "main": "src/mod.js",
     "license": "MIT",
     "author": "LeftHandedCat",

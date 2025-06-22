@@ -31,7 +31,7 @@ import { HashUtil } from "@spt/utils/HashUtil";
 
 let realismDetected:boolean;
 
-class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
+class FoodTrader implements IPreSptLoadMod, IPostDBLoadMod
 {
     private mod: string
     private logger: ILogger
@@ -42,7 +42,7 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
     private static configPath = path.resolve(__dirname, "../config/config.json");
 
     constructor() {
-        this.mod = "catburglar"; // Set name of mod so we can log it to console later
+        this.mod = "FoodTrader"; // Set name of mod so we can log it to console later
     }
     /**
      * Some work needs to be done prior to SPT code being loaded, registering the profile image + setting trader update time inside the trader config json
@@ -64,12 +64,12 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
 
         //Load config file before accessing it
-        CatBurglar.config = JSON.parse(fs.readFileSync(CatBurglar.configPath, "utf-8"));
+        FoodTrader.config = JSON.parse(fs.readFileSync(FoodTrader.configPath, "utf-8"));
 
         // Set config values to local variables for validation & use
-        let minRefresh = CatBurglar.config.traderRefreshMin;
-        let maxRefresh = CatBurglar.config.traderRefreshMax;
-        const addToFlea = CatBurglar.config.addTraderToFlea;
+        let minRefresh = FoodTrader.config.traderRefreshMin;
+        let maxRefresh = FoodTrader.config.traderRefreshMax;
+        const addToFlea = FoodTrader.config.addTraderToFlea;
         if (minRefresh >= maxRefresh)
         {
             minRefresh = 1800;
@@ -86,7 +86,7 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
         // Create helper class and use it to register our traders image/icon + set its stock refresh time
         this.traderHelper = new TraderHelper();
         this.fluentAssortCreator = new FluentAssortCreator(hashUtil, this.logger);
-        this.traderHelper.registerProfileImage(baseJson, this.mod, preSptModLoader, imageRouter, "catburglar.jpg");
+        this.traderHelper.registerProfileImage(baseJson, this.mod, preSptModLoader, imageRouter, "FoodTrader.jpg");
         this.traderHelper.setTraderUpdateTime(traderConfig, baseJson, minRefresh, maxRefresh);
 
         // Add trader to trader enum
@@ -102,13 +102,13 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
             ragfairConfig.traders[baseJson._id] = false;
         }
         dynamicRouterModService.registerDynamicRouter(
-            "CatBurglarRefreshStock",
+            "FoodTraderRefreshStock",
             [
                 {
-                    url: "/client/items/prices/CatBurglar",
+                    url: "/client/items/prices/FoodTrader",
                     action: async (url, info, sessionId, output) => 
                     {
-                        const trader = databaseService.getTables().traders["CatBurglar"];
+                        const trader = databaseService.getTables().traders["FoodTrader"];
                         const assortItems = trader.assort.items;
                         return output;
                     }
@@ -125,7 +125,7 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
     public postDBLoad(container: DependencyContainer): void
     {
 
-        CatBurglar.config = JSON.parse(fs.readFileSync(CatBurglar.configPath, "utf-8"));
+        FoodTrader.config = JSON.parse(fs.readFileSync(FoodTrader.configPath, "utf-8"));
 
         // Resolve SPT classes we'll use
         const preSptModLoader: PreSptModLoader = container.resolve<PreSptModLoader>("PreSptModLoader");
@@ -154,18 +154,18 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
         for (const itemID of listOfKeys)
         {
             //check the price table for the price of the item and then multiply that by the price reduction and the pricemultiplier in the config    
-            let price = (priceTable[itemID] * priceReduction)  * CatBurglar.config.itemPriceMultiplier;
+            let price = (priceTable[itemID] * priceReduction)  * FoodTrader.config.itemPriceMultiplier;
             //if there is no price in the price table take the handbook price of the item, multiply it by our pricereduction variable, then multiply that by the pricemultiplier in the config
             if (!price)
             {
-                price = ((handbookTable.Items.find(x => x.Id === itemID)?.Price ?? 1) * priceReduction)  * CatBurglar.config.itemPriceMultiplier;
+                price = ((handbookTable.Items.find(x => x.Id === itemID)?.Price ?? 1) * priceReduction)  * FoodTrader.config.itemPriceMultiplier;
             }
             this.fluentAssortCreator.createSingleAssortItem(itemID)
                 .addUnlimitedStackCount()
                 .addMoneyCost(Money.ROUBLES, Math.round(price))
                 .addLoyaltyLevel(1)
                 .export(tables.traders[baseJson._id])
-            if (CatBurglar.config.debugLogging){
+            if (FoodTrader.config.debugLogging){
                 logger.log("ItemID: " + itemID + " for price: " + Math.round(price), "cyan");
             }
         }
@@ -173,12 +173,12 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
 
         // Add trader to locale file, ensures trader text shows properly on screen
         // WARNING: adds the same text to ALL locales (e.g. chinese/french/english)
-        this.traderHelper.addTraderToLocales(baseJson, tables, baseJson.name, "Cat Burglar", baseJson.nickname, baseJson.location, "Meow Meow Meow(Tarkov) Meow Meow Meow(keys for sale)");
+        this.traderHelper.addTraderToLocales(baseJson, tables, baseJson.name, "Food Trader", baseJson.nickname, baseJson.location, "Meow Meow Meow(Tarkov) Meow Meow Meow(keys for sale)");
 
         this.logger.debug(`[${this.mod}] loaded... `);
 
         const timeTaken = performance.now() - start;
-        if (CatBurglar.config.debugLogging) {logger.log(`[${this.mod}] Assort generation took ${timeTaken.toFixed(3)}ms.`, "green");}
+        if (FoodTrader.config.debugLogging) {logger.log(`[${this.mod}] Assort generation took ${timeTaken.toFixed(3)}ms.`, "green");}
     }
 
     private getKeyIds(): string[]
@@ -199,9 +199,9 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
                 continue;
             }
             //check if it is a key
-            if(!itemHelper.isOfBaseclass(eachItem._id, BaseClasses.KEY_MECHANICAL))
+            if(!itemHelper.isOfBaseclass(eachItem._id, BaseClasses.FOOD))
             {
-                if(!itemHelper.isOfBaseclass(eachItem._id, BaseClasses.KEYCARD))
+                if(!itemHelper.isOfBaseclass(eachItem._id, BaseClasses.DRINK))
                 {
                     continue;
                 }
@@ -236,4 +236,4 @@ interface Config
     debugLogging: boolean,
 }
 
-module.exports = { mod: new CatBurglar() }
+module.exports = { mod: new FoodTrader() }

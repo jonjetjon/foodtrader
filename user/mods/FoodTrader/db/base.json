@@ -1,5 +1,5 @@
 {
-    "_id": "67635a00fec1f22d67d76870",
+    "_id": "68574d007aaa13f9fe07a5bb",
     "working": true,
     "availableInRaid": false,
     "items_buy": {
@@ -13,9 +13,9 @@
         "id_list": []
     },
     "customization_seller": false,
-    "name": "Cat",
+    "name": "Food",
     "surname": "Burglar",
-    "nickname": "Cat Burglar",
+    "nickname": "Food Trader",
     "location": "Gooberville USA",
     "avatar": "/files/trader/avatar/catburglar.jpg",
     "balance_rub": 5000000,
